@@ -1,8 +1,6 @@
 package org.example.plugin.pliginsample;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +26,12 @@ public final class PluginSample extends JavaPlugin implements Listener {
 
   @Override
   public void onEnable() {
+    saveDefaultConfig();
+    getConfig().getString("Message");
+
     Bukkit.getPluginManager().registerEvents(this, this);
+    getCommand("setlevel").setExecutor(new SetLevelCommand(this));
+    getCommand("allsetlevel").setExecutor(new AllSetLevelCommand());
 
     String[] stringArray = new String[]{"test1", "test2", "test3"};
     List<String> stringList = List.of("test1", "test2", "test3");
@@ -76,9 +79,9 @@ public final class PluginSample extends JavaPlugin implements Listener {
         // 追加した情報で再設定する。
         firework.setFireworkMeta(fireworkMeta);
       }
-      Path path = Path.of("fireworks.txt");
-      Files.writeString(path, "たーまやー");
-      player.sendMessage(Files.readString(path));
+//      Path path = Path.of("fireworks.txt");
+//      Files.writeString(path, "たーまやー");
+//      player.sendMessage(Files.readString(path));
     }
     count++;
 

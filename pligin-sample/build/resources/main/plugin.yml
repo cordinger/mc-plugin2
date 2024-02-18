@@ -2,3 +2,6 @@ name: pligin-sample
 version: '1.0-SNAPSHOT'
 main: org.example.plugin.pliginsample.PluginSample
 api-version: '1.20'
+commands:
+  setlevel:
+  allsetlevel:
