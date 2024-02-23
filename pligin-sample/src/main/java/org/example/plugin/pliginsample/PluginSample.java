@@ -9,12 +9,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
+import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -42,6 +45,16 @@ public final class PluginSample extends JavaPlugin implements Listener {
     map.put(2, "test2");
     map.put(3, "test3");
     String value = map.get(1);
+  }
+
+  @EventHandler
+  public void onPlayerJoin(PlayerJoinEvent e) {
+    // イベント発生時のプレイヤーやワールドなどの情報を変数に持つ。
+    Player player = e.getPlayer();
+    World world = player.getWorld();
+    Location playerLocation = player.getLocation();
+
+    world.spawn(new Location(world, 0, 0, 0), Chicken.class);
   }
 
   /**
