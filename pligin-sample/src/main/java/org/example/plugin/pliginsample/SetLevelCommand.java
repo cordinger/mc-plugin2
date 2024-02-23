@@ -16,13 +16,16 @@ public class SetLevelCommand implements CommandExecutor {
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (sender instanceof Player player) {
-      player.setLevel(30);
+//      System.out.println(pluginSample);
+//      player.setLevel(30);
       if (args.length == 1) {
         player.setLevel(Integer.parseInt(args[0]));
       } else {
 //        player.sendMessage("Nooooo!!!");
         player.sendMessage(pluginSample.getConfig().getString("Message"));
+
       }
+
     }
 
     return false;
