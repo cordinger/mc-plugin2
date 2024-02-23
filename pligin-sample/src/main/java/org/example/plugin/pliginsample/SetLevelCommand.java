@@ -22,6 +22,7 @@ public class SetLevelCommand implements CommandExecutor {
         player.setLevel(Integer.parseInt(args[0]));
       } else {
 //        player.sendMessage("Nooooo!!!");
+        System.out.println(pluginSample.getConfig().getString("Message"));
         player.sendMessage(pluginSample.getConfig().getString("Message"));
 
       }

@@ -54,7 +54,7 @@ public final class PluginSample extends JavaPlugin implements Listener {
     World world = player.getWorld();
     Location playerLocation = player.getLocation();
 
-    world.spawn(new Location(world, 0, 0, 0), Chicken.class);
+    world.spawn(new Location(world, playerLocation.getX() + 3, playerLocation.getY(), 0), Chicken.class);
   }
 
   /**
