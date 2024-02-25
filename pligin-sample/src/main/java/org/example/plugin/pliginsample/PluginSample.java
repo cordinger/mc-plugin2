@@ -10,6 +10,7 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Firework;
@@ -54,7 +55,12 @@ public final class PluginSample extends JavaPlugin implements Listener {
     World world = player.getWorld();
     Location playerLocation = player.getLocation();
 
-    world.spawn(new Location(world, playerLocation.getX() + 3, playerLocation.getY(), 0), Chicken.class);
+    world.spawn(new Location(world, playerLocation.getX() + 1, playerLocation.getY(), playerLocation.getZ()), Chicken.class);
+    world.getBlockAt(
+        new Location(world,
+            playerLocation.getX() + 2,
+            playerLocation.getY(),
+            playerLocation.getZ())).setType(Material.DARK_OAK_WOOD);
   }
 
   /**
