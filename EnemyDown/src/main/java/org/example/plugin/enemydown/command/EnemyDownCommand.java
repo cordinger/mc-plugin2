@@ -4,43 +4,64 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.SplittableRandom;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.example.plugin.enemydown.Main;
 import org.example.plugin.enemydown.data.PlayerScore;
 // import java.net.http.WebSocket.Listener;
 
 public class EnemyDownCommand implements CommandExecutor, Listener {
 
+  private Main main;
   private List<PlayerScore> playerScoreList = new ArrayList<>();
+
+  public EnemyDownCommand(Main main) {
+    this.main = main;
+  }
 
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
     if (sender instanceof Player player) {
-      if (playerScoreList.isEmpty()) {
-        addNewPlayer(player);
-      } else {
-        for (PlayerScore playerScore : playerScoreList) {
-          if (!playerScore.getPlayerName().equals(player.getName())) {
-            addNewPlayer(player);
-          }
-        }
-      }
+      PlayerScore nowPlayer = getPlayerScore(player);
+      nowPlayer.setGameTime(20);
 
       World world = player.getWorld();
+
       //プレイヤーの状態を初期化する。（体力、空腹最大値にする）
       initPlayerStatus(player);
-      world.spawnEntity(getEnemySpawnLocation(player, world), getEnemy());
+
+      Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
+        if (nowPlayer.getGameTime() <= 0) {
+          Runnable.cancel();
+          player.sendTitle("ゲーム終了です！", nowPlayer.getPlayerName() + " " +
+              nowPlayer.getScore() + "点！", 0, 60, 0);
+          nowPlayer.setScore(0);
+          List<Entity> nearbyEnemies = player.getNearbyEntities(50, 100, 50);
+          for (Entity enemy : nearbyEnemies) {
+            switch (enemy.getType()) {
+              case ZOMBIE, SKELETON, WITCH -> enemy.remove();
+            }
+          }
+          return;
+        }
+        world.spawnEntity(getEnemySpawnLocation(player, world), getEnemy());
+        nowPlayer.setGameTime(nowPlayer.getGameTime() - 5);
+      }, 0, 5 * 20);
     }
     return false;
   }
@@ -48,32 +69,58 @@ public class EnemyDownCommand implements CommandExecutor, Listener {
 
   @EventHandler
   public void onEnemyDeath(EntityDeathEvent e) {
-    Player player = e.getEntity().getKiller();
+    LivingEntity enemy = e.getEntity();
+    Player player = enemy.getKiller();
     if (Objects.isNull(player) || playerScoreList.isEmpty()) {
       return;
     }
 
     for (PlayerScore playerScore : playerScoreList) {
       if (playerScore.getPlayerName().equals(player.getName())) {
-        playerScore.setScore.setScore(playerScore.getScore() + 10);
+        int point = switch (enemy.getType()) {
+          case ZOMBIE -> 10;
+          case SKELETON -> 20;
+          case WITCH -> 30;
+          default -> 0;
+        };
+        playerScore.setScore(playerScore.getScore() + point);
         player.sendMessage("敵を倒した！　現在のスコアは" + playerScore.getScore() + "点！");
       }
     }
+  }
 
-    if (this.player.getName().equals(player.getName())) {
-      score += 10;
+  /**
+   * 現在実行しているプレイヤーのスコア情報を取得する。
+   *
+   * @param player 　コマンドを実行したプレイヤー
+   * @return　現在実行しているプレイヤーのスコア情報
+   */
+  private PlayerScore getPlayerScore(Player player) {
+    if (playerScoreList.isEmpty()) {
+      return addNewPlayer(player);
+    } else {
+      for (PlayerScore playerScore : playerScoreList) {
+        if (!playerScore.getPlayerName().equals(player.getName())) {
+          return addNewPlayer(player);
+        } else {
+          return playerScore;
+        }
+      }
     }
+    return null;
   }
 
   /**
    * 新規のプレイヤー情報をリストに追加します。
    *
    * @param player コマンドを実行したプレイヤー
+   * @return 新規プレイヤー
    */
-  private void addNewPlayer(Player player) {
+  private PlayerScore addNewPlayer(Player player) {
     PlayerScore newPlayer = new PlayerScore();
     newPlayer.setPlayerName(player.getName());
     playerScoreList.add(newPlayer);
+    return newPlayer;
   }
 
   /**
@@ -119,7 +166,7 @@ public class EnemyDownCommand implements CommandExecutor, Listener {
    * @return　敵
    */
   private static EntityType getEnemy() {
-    List<EntityType> enemyList = List.of(EntityType.ZOMBIE, EntityType.SKELETON);
-    return enemyList.get(new SplittableRandom().nextInt(2));
+    List<EntityType> enemyList = List.of(EntityType.ZOMBIE, EntityType.SKELETON, EntityType.WITCH);
+    return enemyList.get(new SplittableRandom().nextInt(enemyList.size()));
   }
 }
