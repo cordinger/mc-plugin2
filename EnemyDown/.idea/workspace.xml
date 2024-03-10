@@ -18,9 +18,12 @@
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/org/example/plugin/enemydown/command/EnemyDownCommand$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/org/example/plugin/enemydown/command/EnemyDownCommand$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/org/example/plugin/enemydown/command/EnemyDownCommand.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/org/example/plugin/enemydown/command/EnemyDownCommand.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/libs/EnemyDown-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/build/libs/EnemyDown-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/EnemyDownCommand$1.class.uniqueId2" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/EnemyDownCommand$1.class.uniqueId2" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/EnemyDownCommand.class.uniqueId0" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/EnemyDownCommand.class.uniqueId0" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/data/PlayerScore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/data/PlayerScore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/command/BaseCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/command/BaseCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/command/EnemyDownCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/command/EnemyDownCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/command/EnemySpawnCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/plugin/enemydown/command/EnemySpawnCommand.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -174,5 +177,22 @@
       <updated>1708786009878</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
