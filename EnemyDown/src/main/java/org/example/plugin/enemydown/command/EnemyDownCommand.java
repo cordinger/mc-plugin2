@@ -59,7 +59,7 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
       try (Connection con = DriverManager.getConnection(
           "jdbc:mysql://localhost:3306/spigot_server",
           "root",
-          "rootroot");
+          "Takeda19");
           Statement statement = con.createStatement();
           ResultSet resultset = statement.executeQuery("select * from player_score")) {
         while (resultset.next()) {
@@ -207,6 +207,20 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
         player.sendTitle("ゲーム終了です！",
             nowPlayerScore.getPlayerName() + " 合計 " + nowPlayerScore.getScore() + "点！",
             0, 60, 0);
+
+        try (Connection con = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/spigot_server",
+            "root",
+            "rootroot");
+            Statement statement = con.createStatement()) {
+
+          statement.executeUpdate(
+              "insert player_score(player_name, score,  difficulty, registered_dt)"
+                  + "values('" + nowPlayerScore.getPlayerName() + "', " + nowPlayerScore.getScore()
+                  + ", '" + difficulty + "', now());");
+        } catch (SQLException e) {
+          e.printStackTrace();
+        }
 
         spawnEntityList.forEach(Entity::remove);
         spawnEntityList.clear();
