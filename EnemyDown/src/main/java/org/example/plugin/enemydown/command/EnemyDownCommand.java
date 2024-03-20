@@ -1,5 +1,6 @@
 package org.example.plugin.enemydown.command;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -56,6 +57,9 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
   @Override
   public boolean onExecutePlayerCommand(Player player, Command command, String label, String[] args) {
     if (args.length == 1 && LIST.equals(args[0])) {
+      InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
+      SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
       try (Connection con = DriverManager.getConnection(
           "jdbc:mysql://localhost:3306/spigot_server",
           "root",
@@ -211,11 +215,11 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
         try (Connection con = DriverManager.getConnection(
             "jdbc:mysql://localhost:3306/spigot_server",
             "root",
-            "rootroot");
+            "Takeda19");
             Statement statement = con.createStatement()) {
 
           statement.executeUpdate(
-              "insert player_score(player_name, score,  difficulty, registered_dt)"
+              "insert player_score(player_name, score,  difficulty, registered_at)"
                   + "values('" + nowPlayerScore.getPlayerName() + "', " + nowPlayerScore.getScore()
                   + ", '" + difficulty + "', now());");
         } catch (SQLException e) {
