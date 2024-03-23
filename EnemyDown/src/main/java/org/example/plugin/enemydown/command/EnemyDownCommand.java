@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,15 +75,13 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
         PlayerScoreMapper mapper = session.getMapper(PlayerScoreMapper.class);
         List<PlayerScore> playerScoresList = mapper.selectList();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         for (PlayerScore playerScore : playerScoresList) {
-          LocalDateTime date = LocalDateTime.parse(playerScore.getRegistered_at(), formatter);
 
           player.sendMessage(playerScore.getId() + " | "
-              + playerScore.getPlayer_Name() + " | "
+              + playerScore.getPlayerName() + " | "
               + playerScore.getScore() + " | "
               + playerScore.getDifficulty() + " | "
-              + date.format(formatter));
+              + playerScore.getRegisteredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }
       }
 //      try (Connection con = DriverManager.getConnection(
@@ -192,7 +189,6 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
     removePotionEffect(player);
     return executingPlayer;
   }
-
 
   /**
    * 新規のプレイヤー情報をリストに追加します。
