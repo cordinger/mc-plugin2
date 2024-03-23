@@ -2,10 +2,6 @@ package org.example.plugin.enemydown.command;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,27 +80,6 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
               + playerScore.getRegisteredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }
       }
-//      try (Connection con = DriverManager.getConnection(
-//          "jdbc:mysql://localhost:3306/spigot_server",
-//          "root",
-//          "Takeda19");
-//          Statement statement = con.createStatement();
-//          ResultSet resultset = statement.executeQuery("select * from player_score")) {
-//        while (resultset.next()) {
-//          int id = resultset.getInt("id");
-//          String name = resultset.getString("player_name");
-//          int score = resultset.getInt("score");
-//          String difficulty = resultset.getString("Difficulty");
-//
-//          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//          LocalDateTime date = LocalDateTime.parse(resultset.getString("registered_at"), formatter);
-//
-//          player.sendMessage(id + " | " + name + " | " + score + " | " + difficulty + " | " + date.format(formatter));
-//
-//        }
-//      } catch (SQLException e) {
-//        e.printStackTrace();
-//      }
       return false;
     }
 
@@ -235,24 +210,32 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
             nowExecutingPlayer.getPlayerName() + " 合計 " + nowExecutingPlayer.getScore() + "点！",
             0, 60, 0);
 
-        try (Connection con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/spigot_server",
-            "root",
-            "Takeda19");
-            Statement statement = con.createStatement()) {
-
-          statement.executeUpdate(
-              "insert player_score(player_name, score,  difficulty, registered_at)"
-                  + "values('" + nowExecutingPlayer.getPlayerName() + "', " + nowExecutingPlayer.getScore()
-                  + ", '" + difficulty + "', now());");
-        } catch (SQLException e) {
-          e.printStackTrace();
-        }
+//        try (Connection con = DriverManager.getConnection(
+//            "jdbc:mysql://localhost:3306/spigot_server",
+//            "root",
+//            "Takeda19");
+//            Statement statement = con.createStatement()) {
+//
+//          statement.executeUpdate(
+//              "insert player_score(player_name, score,  difficulty, registered_at)"
+//                  + "values('" + nowExecutingPlayer.getPlayerName() + "', " + nowExecutingPlayer.getScore()
+//                  + ", '" + difficulty + "', now());");
+//        } catch (SQLException e) {
+//          e.printStackTrace();
+//        }
 
         spawnEntityList.forEach(Entity::remove);
         spawnEntityList.clear();
 
         removePotionEffect(player);
+
+//        スコア登録処理
+        try (SqlSession session = sqlSessionFactory.openSession(true)) {
+          PlayerScoreMapper mapper = session.getMapper(PlayerScoreMapper.class);
+          mapper.insert(new PlayerScore(nowExecutingPlayer.getPlayerName()
+              , nowExecutingPlayer.getScore()
+              , difficulty));
+        }
         return;
       }
       Entity spawnEntity = player.getWorld().spawnEntity(getEnemySpawnLocation(player), getEnemy(difficulty));
