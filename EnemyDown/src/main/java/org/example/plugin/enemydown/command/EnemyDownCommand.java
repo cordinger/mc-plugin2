@@ -1,16 +1,11 @@
 package org.example.plugin.enemydown.command;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.SplittableRandom;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -28,8 +23,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.example.plugin.enemydown.Main;
+import org.example.plugin.enemydown.PlayerScoreData;
 import org.example.plugin.enemydown.data.ExecutingPlayer;
-import org.example.plugin.enemydown.mapper.PlayerScoreMapper;
 import org.example.plugin.enemydown.mapper.data.PlayerScore;
 // import java.net.http.WebSocket.Listener;
 
@@ -47,39 +42,22 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
   public static final String HARD = "hard";
   public static final String NONE = "none";
   public static final String LIST = "list";
-  private Main main;
-  private List<ExecutingPlayer> executingPlayerList = new ArrayList<>();
-  private List<Entity> spawnEntityList = new ArrayList<>();
+  private final Main main;
+  private final PlayerScoreData playerScoreData = new PlayerScoreData();
+  private final List<ExecutingPlayer> executingPlayerList = new ArrayList<>();
+  private final List<Entity> spawnEntityList = new ArrayList<>();
 
   private SqlSessionFactory sqlSessionFactory;
 
   public EnemyDownCommand(Main main) {
     this.main = main;
-
-    try {
-      InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
-      this.sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Override
   public boolean onExecutePlayerCommand(Player player, Command command, String label, String[] args) {
+    //最初の引数が「list」だったら一覧を表示して処理を終了する。
     if (args.length == 1 && LIST.equals(args[0])) {
-      try (SqlSession session = sqlSessionFactory.openSession()) {
-        PlayerScoreMapper mapper = session.getMapper(PlayerScoreMapper.class);
-        List<PlayerScore> playerScoresList = mapper.selectList();
-
-        for (PlayerScore playerScore : playerScoresList) {
-
-          player.sendMessage(playerScore.getId() + " | "
-              + playerScore.getPlayerName() + " | "
-              + playerScore.getScore() + " | "
-              + playerScore.getDifficulty() + " | "
-              + playerScore.getRegisteredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        }
-      }
+      sendPlayerScoreList(player);
       return false;
     }
 
@@ -96,12 +74,34 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
     return true;
   }
 
+
+  @Override
+  public boolean onExecuteNPCCommand(CommandSender sender, Command command, String label, String[] args) {
+    return false;
+  }
+
+  /**
+   * 現在登録されているスコアの一覧をメッセージにおくる。
+   *
+   * @param player 　プレイヤー
+   */
+  private void sendPlayerScoreList(Player player) {
+    List<PlayerScore> playerScoreList = playerScoreData.selectList();
+    for (PlayerScore playerScore : playerScoreList) {
+      player.sendMessage(playerScore.getId() + " | "
+          + playerScore.getPlayerName() + " | "
+          + playerScore.getScore() + " | "
+          + playerScore.getDifficulty() + " | "
+          + playerScore.getRegisteredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+    }
+  }
+
   /**
    * 難易度を引数から取得します。
    *
    * @param player 　コマンドを実行したプレイヤー
    * @param args   　コマンド引数
-   * @return　難易度
+   * @return 難易度
    */
   private String getDifficulty(Player player, String[] args) {
     if (args.length == 1 && (EASY.equals(args[0]) || NORMAL.equals(args[0]) || HARD.equals(args[0]))) {
@@ -109,11 +109,6 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
     }
     player.sendMessage(ChatColor.RED + "実行できません。コマンド引数の一つ目に難易度指定が必要です。easy, normal, hard");
     return NONE;
-  }
-
-  @Override
-  public boolean onExecuteNPCCommand(CommandSender sender, Command command, String label, String[] args) {
-    return false;
   }
 
   @EventHandler
@@ -147,7 +142,7 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
    * 現在実行しているプレイヤーのスコア情報を取得する。
    *
    * @param player 　コマンドを実行したプレイヤー
-   * @return　現在実行しているプレイヤーのスコア情報
+   * @return 現在実行しているプレイヤーのスコア情報
    */
   private ExecutingPlayer getPlayerScore(Player player) {
     ExecutingPlayer executingPlayer = new ExecutingPlayer(player.getName());
@@ -230,12 +225,12 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
         removePotionEffect(player);
 
 //        スコア登録処理
-        try (SqlSession session = sqlSessionFactory.openSession(true)) {
-          PlayerScoreMapper mapper = session.getMapper(PlayerScoreMapper.class);
-          mapper.insert(new PlayerScore(nowExecutingPlayer.getPlayerName()
-              , nowExecutingPlayer.getScore()
-              , difficulty));
-        }
+        playerScoreData.insert(
+            new PlayerScore(nowExecutingPlayer.getPlayerName()
+                , nowExecutingPlayer.getScore()
+                , difficulty
+            )
+        );
         return;
       }
       Entity spawnEntity = player.getWorld().spawnEntity(getEnemySpawnLocation(player), getEnemy(difficulty));
@@ -251,7 +246,7 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
    * Y軸はプレイヤーと同じ位置になります。
    *
    * @param player 　コマンドを実行したプレイヤー
-   * @return　敵の出現場所
+   * @return 敵の出現場所
    */
 
   private Location getEnemySpawnLocation(Player player) {
@@ -270,7 +265,7 @@ public class EnemyDownCommand extends BaseCommand implements Listener {
    * ランダムで敵を抽選して、その結果の敵を取得する。
    *
    * @param difficulty 難易度
-   * @return　敵
+   * @return 敵
    */
   private static EntityType getEnemy(String difficulty) {
     List<EntityType> enemyList = switch (difficulty) {
